@@ -5,9 +5,10 @@ type Props = {
   send: (msg: ClientMessage) => void
   connected: boolean
   errorMessage: string | null
+  onAdmin: () => void
 }
 
-export default function LobbyScreen({ send, connected, errorMessage }: Props) {
+export default function LobbyScreen({ send, connected, errorMessage, onAdmin }: Props) {
   const [mode, setMode] = useState<'top' | 'create' | 'join'>('top')
   const [playerName, setPlayerName] = useState('')
   const [roomId, setRoomId] = useState('')
@@ -49,6 +50,12 @@ export default function LobbyScreen({ send, connected, errorMessage }: Props) {
             className="bg-white hover:bg-amber-100 disabled:opacity-50 text-amber-700 font-bold py-3 px-6 rounded-xl text-lg border-2 border-amber-400 transition-colors"
           >
             ルームに参加
+          </button>
+          <button
+            onClick={onAdmin}
+            className="text-amber-600 hover:text-amber-800 text-sm py-2 transition-colors"
+          >
+            カード管理
           </button>
         </div>
       )}

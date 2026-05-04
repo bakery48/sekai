@@ -1,6 +1,7 @@
 import type { TopicCard, WordCard } from '@sekai/shared'
 import { topicCards } from './data/topicCards'
 import { wordCards } from './data/wordCards'
+import { getCustomCards } from './cardStore'
 
 export function shuffle<T>(arr: T[]): T[] {
   const a = [...arr]
@@ -16,7 +17,8 @@ export class TopicDeck {
   private useFront: boolean[]
 
   constructor() {
-    this.cards = shuffle(topicCards)
+    const custom = getCustomCards()
+    this.cards = shuffle([...topicCards, ...custom.topicCards])
     this.useFront = this.cards.map(() => Math.random() < 0.5)
   }
 
@@ -40,7 +42,8 @@ export class WordDeck {
   private cards: WordCard[]
 
   constructor() {
-    this.cards = shuffle(wordCards)
+    const custom = getCustomCards()
+    this.cards = shuffle([...wordCards, ...custom.wordCards])
   }
 
   draw(count: number): WordCard[] {

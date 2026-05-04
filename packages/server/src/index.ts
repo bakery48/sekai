@@ -3,6 +3,10 @@ import fastifyStatic from '@fastify/static'
 import { WebSocketServer } from 'ws'
 import path from 'path'
 import { handleConnection } from './wsHandler'
+import { topicCards } from './data/topicCards'
+import { wordCards } from './data/wordCards'
+import { getCustomCards, addTopicCard, addWordCard, deleteTopicCard, deleteWordCard } from './cardStore'
+import type { TopicCard, WordCard } from '@sekai/shared'
 
 const app = Fastify({ logger: true })
 const PORT = Number(process.env.PORT) || 3000
@@ -16,6 +20,52 @@ async function bootstrap() {
   }
 
   app.get('/health', async () => ({ status: 'ok' }))
+
+  // カード一覧
+  app.get('/api/cards', async () => {
+    const custom = getCustomCards()
+    return {
+      topicCards: [
+        ...topicCards.map(c => ({ ...c, isCustom: false })),
+        ...custom.topicCards.map(c => ({ ...c, isCustom: true })),
+      ],
+      wordCards: [
+        ...wordCards.map(c => ({ ...c, isCustom: false })),
+        ...custom.wordCards.map(c => ({ ...c, isCustom: true })),
+      ],
+    }
+  })
+
+  // お題カード追加
+  app.post<{ Body: { frontText: string; backText: string; blanks: number } }>('/api/cards/topic', async (req, reply) => {
+    const { frontText, backText, blanks } = req.body
+    if (!frontText?.trim() || !backText?.trim()) return reply.status(400).send({ error: 'frontText and backText required' })
+    if (blanks !== 1 && blanks !== 2) return reply.status(400).send({ error: 'blanks must be 1 or 2' })
+    const card: TopicCard = { id: `custom-topic-${Date.now()}`, frontText: frontText.trim(), backText: backText.trim(), blanks: blanks as 1 | 2 }
+    addTopicCard(card)
+    return { ok: true, card }
+  })
+
+  // 答えカード追加
+  app.post<{ Body: { text: string } }>('/api/cards/word', async (req, reply) => {
+    const { text } = req.body
+    if (!text?.trim()) return reply.status(400).send({ error: 'text required' })
+    const card: WordCard = { id: `custom-word-${Date.now()}`, text: text.trim() }
+    addWordCard(card)
+    return { ok: true, card }
+  })
+
+  // お題カード削除（カスタムのみ）
+  app.delete<{ Params: { id: string } }>('/api/cards/topic/:id', async (req, reply) => {
+    const ok = deleteTopicCard(req.params.id)
+    return ok ? { ok: true } : reply.status(404).send({ error: 'Not found or built-in card' })
+  })
+
+  // 答えカード削除（カスタムのみ）
+  app.delete<{ Params: { id: string } }>('/api/cards/word/:id', async (req, reply) => {
+    const ok = deleteWordCard(req.params.id)
+    return ok ? { ok: true } : reply.status(404).send({ error: 'Not found or built-in card' })
+  })
 
   const wss = new WebSocketServer({ noServer: true })
   wss.on('connection', handleConnection)
