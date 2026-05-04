@@ -22,6 +22,7 @@ export class GameRoom {
   private phase: GamePhase = 'waiting'
   private currentJudgeIndex = 0
   private currentTopicCard: TopicCard | null = null
+  private lastRoundWinnerId: string | null = null
   private _winThreshold: number
   private submissions: InternalSubmission[] = []
   private submittedPlayerIds = new Set<string>()
@@ -176,9 +177,11 @@ export class GameRoom {
 
     if (isDummy) {
       judge.score = Math.max(0, judge.score - 1)
+      this.lastRoundWinnerId = null
     } else {
       const winner = this.getPlayer(submission.playerId as string)
       if (winner) winner.score++
+      this.lastRoundWinnerId = submission.playerId as string
     }
 
     const updatedScores: Record<string, number> = {}
@@ -196,14 +199,20 @@ export class GameRoom {
   }
 
   nextRound(): void {
-    const judge = this.players[this.currentJudgeIndex]
+    const prevJudge = this.players[this.currentJudgeIndex]
     for (const p of this.players) {
       const needed = HAND_SIZE - p.hand.length
-      if (needed > 0 && p.id !== judge.id) {
+      if (needed > 0 && p.id !== prevJudge.id) {
         p.hand.push(...this.wordDeck!.draw(needed))
       }
     }
-    this.currentJudgeIndex = (this.currentJudgeIndex + 1) % this.players.length
+    if (this.lastRoundWinnerId) {
+      const winnerIndex = this.players.findIndex(p => p.id === this.lastRoundWinnerId)
+      this.currentJudgeIndex = winnerIndex >= 0 ? winnerIndex : (this.currentJudgeIndex + 1) % this.players.length
+    } else {
+      this.currentJudgeIndex = (this.currentJudgeIndex + 1) % this.players.length
+    }
+    this.lastRoundWinnerId = null
     this.startRound()
   }
 
