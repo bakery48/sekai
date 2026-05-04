@@ -146,6 +146,20 @@ export class GameRoom {
     this.submissions = shuffle(this.submissions)
   }
 
+  revealCard(judgeId: string, submissionIndex: number): { ok: boolean; error?: string } {
+    if (this.phase !== 'judging') return { ok: false, error: 'Not in judging phase' }
+    const judge = this.players[this.currentJudgeIndex]
+    if (judgeId !== judge.id) return { ok: false, error: 'Not the judge' }
+    const submission = this.submissions[submissionIndex]
+    if (!submission) return { ok: false, error: 'Invalid submission index' }
+    submission.isRevealed = true
+    return { ok: true }
+  }
+
+  areAllRevealed(): boolean {
+    return this.submissions.length > 0 && this.submissions.every(s => s.isRevealed)
+  }
+
   selectWinner(judgeId: string, submissionIndex: number): {
     ok: boolean
     error?: string

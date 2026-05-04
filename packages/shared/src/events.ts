@@ -5,6 +5,7 @@ export type C2S_CreateRoom   = { type: 'create_room'; playerName: string }
 export type C2S_JoinRoom     = { type: 'join_room'; playerName: string; roomId: string }
 export type C2S_StartGame    = { type: 'start_game'; roomId: string }
 export type C2S_SubmitAnswer = { type: 'submit_answer'; roomId: string; cardIds: string[] }
+export type C2S_RevealCard   = { type: 'reveal_card'; roomId: string; submissionIndex: number }
 export type C2S_SelectWinner = { type: 'select_winner'; roomId: string; submissionIndex: number }
 export type C2S_NextRound    = { type: 'next_round'; roomId: string }
 
@@ -13,6 +14,7 @@ export type ClientMessage =
   | C2S_JoinRoom
   | C2S_StartGame
   | C2S_SubmitAnswer
+  | C2S_RevealCard
   | C2S_SelectWinner
   | C2S_NextRound
 
@@ -25,6 +27,7 @@ export type S2C_GameStarted     = { type: 'game_started'; state: RoomState; your
 export type S2C_TopicRevealed   = { type: 'topic_revealed'; topicCard: TopicCard }
 export type S2C_PlayerSubmitted = { type: 'player_submitted'; playerId: string }
 export type S2C_AllSubmitted    = { type: 'all_submitted'; submissions: ClientSubmission[] }
+export type S2C_CardRevealed    = { type: 'card_revealed'; submissionIndex: number }
 export type S2C_WinnerSelected  = {
   type: 'winner_selected'
   submissionIndex: number
@@ -44,6 +47,7 @@ export type ServerMessage =
   | S2C_TopicRevealed
   | S2C_PlayerSubmitted
   | S2C_AllSubmitted
+  | S2C_CardRevealed
   | S2C_WinnerSelected
   | S2C_GameOver
   | S2C_Error

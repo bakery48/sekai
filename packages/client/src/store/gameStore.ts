@@ -145,6 +145,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
       case 'player_submitted':
         break
 
+      case 'card_revealed':
+        set((s) => ({
+          submissions: s.submissions.map((sub, i) =>
+            i === msg.submissionIndex ? { ...sub, isRevealed: true } : sub
+          ),
+          roomState: s.roomState
+            ? {
+                ...s.roomState,
+                submissions: s.roomState.submissions.map((sub, i) =>
+                  i === msg.submissionIndex ? { ...sub, isRevealed: true } : sub
+                ),
+              }
+            : s.roomState,
+        }))
+        break
+
       case 'all_submitted':
         set({ submissions: msg.submissions })
         set((s) => ({

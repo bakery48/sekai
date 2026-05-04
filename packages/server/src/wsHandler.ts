@@ -123,6 +123,20 @@ function handleMessage(ws: WebSocket, msg: ClientMessage): void {
       break
     }
 
+    case 'reveal_card': {
+      const playerId = playerIdByWs.get(ws)
+      if (!playerId) return
+
+      const room = gameManager.getRoom(msg.roomId)
+      if (!room) { send(ws, { type: 'error', message: 'Room not found' }); return }
+
+      const result = room.revealCard(playerId, msg.submissionIndex)
+      if (!result.ok) { send(ws, { type: 'error', message: result.error! }); return }
+
+      room.broadcast({ type: 'card_revealed', submissionIndex: msg.submissionIndex })
+      break
+    }
+
     case 'select_winner': {
       const playerId = playerIdByWs.get(ws)
       if (!playerId) return

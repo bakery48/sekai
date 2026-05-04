@@ -38,6 +38,10 @@ export default function GameScreen({ send }: Props) {
     setSubmitted(true)
   }
 
+  const handleReveal = (index: number) => {
+    send({ type: 'reveal_card', roomId: roomState.roomId, submissionIndex: index })
+  }
+
   const handleSelectWinner = (index: number) => {
     setSelectedWinnerIndex(index)
     send({ type: 'select_winner', roomId: roomState.roomId, submissionIndex: index })
@@ -117,6 +121,7 @@ export default function GameScreen({ send }: Props) {
             <SubmissionList
               submissions={submissions}
               topic={currentTopic}
+              onReveal={handleReveal}
               onSelect={handleSelectWinner}
               isJudge={isJudge}
               selectedIndex={selectedWinnerIndex}
