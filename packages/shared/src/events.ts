@@ -38,6 +38,7 @@ export type S2C_WinnerSelected  = {
   updatedScores: Record<string, number>
 }
 export type S2C_HandUpdated     = { type: 'hand_updated'; hand: WordCard[] }
+export type S2C_AllDiscardReady = { type: 'all_discard_ready' }
 export type S2C_GameOver        = { type: 'game_over'; winnerId: string; finalScores: Record<string, number> }
 export type S2C_Error           = { type: 'error'; message: string }
 
@@ -53,5 +54,6 @@ export type ServerMessage =
   | S2C_CardRevealed
   | S2C_WinnerSelected
   | S2C_HandUpdated
+  | S2C_AllDiscardReady
   | S2C_GameOver
   | S2C_Error

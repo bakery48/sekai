@@ -174,6 +174,9 @@ function handleMessage(ws: WebSocket, msg: ClientMessage): void {
       if (!result.ok) { send(ws, { type: 'error', message: result.error! }); return }
 
       send(ws, { type: 'hand_updated', hand: result.hand })
+      if (room.isAllDiscardReady()) {
+        room.broadcast({ type: 'all_discard_ready' })
+      }
       break
     }
 
@@ -185,6 +188,7 @@ function handleMessage(ws: WebSocket, msg: ClientMessage): void {
       if (!room) { send(ws, { type: 'error', message: 'Room not found' }); return }
 
       if (playerId !== room.judgeId) { send(ws, { type: 'error', message: 'Only judge can advance' }); return }
+      if (!room.isAllDiscardReady()) { send(ws, { type: 'error', message: '全員の手札交換が完了していません' }); return }
 
       room.nextRound()
       const state = room.getRoomState()

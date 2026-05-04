@@ -23,6 +23,7 @@ export class GameRoom {
   private currentJudgeIndex = 0
   private currentTopicCard: TopicCard | null = null
   private lastRoundWinnerId: string | null = null
+  private discardReadyPlayerIds = new Set<string>()
   private _winThreshold: number
   private submissions: InternalSubmission[] = []
   private submittedPlayerIds = new Set<string>()
@@ -104,6 +105,7 @@ export class GameRoom {
     this.currentTopicCard = card
     this.submissions = []
     this.submittedPlayerIds.clear()
+    this.discardReadyPlayerIds.clear()
     this.roundNumber++
     this.phase = 'topic_revealed'
   }
@@ -207,7 +209,14 @@ export class GameRoom {
     const validIds = cardIds.filter(id => player.hand.some(c => c.id === id))
     player.hand = player.hand.filter(c => !validIds.includes(c.id))
     player.hand.push(...this.wordDeck!.draw(validIds.length))
+    this.discardReadyPlayerIds.add(playerId)
     return { ok: true, hand: player.hand }
+  }
+
+  isAllDiscardReady(): boolean {
+    const judge = this.players[this.currentJudgeIndex]
+    const active = this.players.filter(p => p.isConnected && p.id !== judge?.id)
+    return active.length === 0 || active.every(p => this.discardReadyPlayerIds.has(p.id))
   }
 
   nextRound(): void {
