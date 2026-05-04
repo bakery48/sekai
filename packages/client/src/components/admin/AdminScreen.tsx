@@ -168,15 +168,35 @@ export default function AdminScreen({ onBack }: Props) {
         {tab === 'topic' && (
           <div className="bg-white rounded-xl p-4 border-2 border-amber-200 flex flex-col gap-3">
             <p className="text-sm font-bold text-amber-700">新しいお題カードを追加</p>
-            <p className="text-xs text-gray-500">空欄の位置に <code className="bg-gray-100 px-1 rounded">__</code> と入力してください（1つだけ）</p>
-            <input
-              type="text"
-              placeholder="私の世界では、__ が一番大切だ"
-              value={newText}
-              onChange={(e) => setNewText(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && addTopic()}
-              className="w-full border border-amber-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-400"
-            />
+            <p className="text-xs text-gray-500">空欄の位置に <code className="bg-gray-100 px-1 rounded">__</code> を入れてください（1つだけ）</p>
+            <div className="flex gap-2">
+              <input
+                id="topic-input"
+                type="text"
+                placeholder="私の世界では、__ が一番大切だ"
+                value={newText}
+                onChange={(e) => setNewText(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && addTopic()}
+                className="flex-1 border border-amber-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-400"
+              />
+              <button
+                onClick={() => {
+                  const el = document.getElementById('topic-input') as HTMLInputElement | null
+                  if (!el) return
+                  const start = el.selectionStart ?? newText.length
+                  const end = el.selectionEnd ?? newText.length
+                  const next = newText.slice(0, start) + '__' + newText.slice(end)
+                  setNewText(next)
+                  requestAnimationFrame(() => {
+                    el.focus()
+                    el.setSelectionRange(start + 2, start + 2)
+                  })
+                }}
+                className="bg-gray-100 hover:bg-gray-200 border border-amber-200 text-gray-700 font-bold px-3 py-2 rounded text-sm transition-colors"
+              >
+                __
+              </button>
+            </div>
             {newText && countBlanks(newText) !== 1 && (
               <p className="text-xs text-red-500">__ を1つだけ入れてください（現在{countBlanks(newText)}つ）</p>
             )}
