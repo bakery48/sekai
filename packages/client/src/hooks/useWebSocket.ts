@@ -2,7 +2,9 @@ import { useEffect, useRef, useCallback } from 'react'
 import type { ClientMessage, ServerMessage } from '@sekai/shared'
 import { useGameStore } from '../store/gameStore'
 
-const WS_URL = import.meta.env.DEV ? 'ws://localhost:3000/ws' : `ws://${location.host}/ws`
+const WS_URL = import.meta.env.DEV
+  ? 'ws://localhost:3000/ws'
+  : `${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/ws`
 
 export function useWebSocket() {
   const ws = useRef<WebSocket | null>(null)
