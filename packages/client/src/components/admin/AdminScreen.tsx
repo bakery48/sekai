@@ -22,9 +22,20 @@ function Toggle({ enabled, onChange }: { enabled: boolean; onChange: (v: boolean
   return (
     <button
       onClick={() => onChange(!enabled)}
-      className={`relative w-10 h-6 rounded-full transition-colors shrink-0 ${enabled ? 'bg-amber-500' : 'bg-gray-300'}`}
+      style={{ width: 40, height: 24, position: 'relative', flexShrink: 0 }}
+      className={`rounded-full transition-colors ${enabled ? 'bg-amber-500' : 'bg-gray-300'}`}
     >
-      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${enabled ? 'translate-x-5' : 'translate-x-1'}`} />
+      <span style={{
+        position: 'absolute',
+        top: 4,
+        left: enabled ? 20 : 4,
+        width: 16,
+        height: 16,
+        background: 'white',
+        borderRadius: '50%',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.3)',
+        transition: 'left 0.15s',
+      }} />
     </button>
   )
 }
