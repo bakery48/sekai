@@ -20,12 +20,26 @@ export default function GameScreen({ send }: Props) {
   const [submitted, setSubmitted] = useState(false)
   const [discardIds, setDiscardIds] = useState<string[]>([])
   const [discarded, setDiscarded] = useState(false)
+  const [countdown, setCountdown] = useState<number | null>(null)
 
   useEffect(() => {
     setSubmitted(false)
     setDiscardIds([])
     setDiscarded(false)
   }, [currentTopic?.id])
+
+  useEffect(() => {
+    if (!roomState) return
+    if (roomState.phase === 'round_result') {
+      setCountdown(10)
+      const interval = setInterval(() => {
+        setCountdown(prev => (prev !== null && prev > 1 ? prev - 1 : null))
+      }, 1000)
+      return () => clearInterval(interval)
+    } else {
+      setCountdown(null)
+    }
+  }, [roomState?.phase])
 
   if (!roomState || !currentTopic || !playerId) return null
 
@@ -69,9 +83,14 @@ export default function GameScreen({ send }: Props) {
       {/* ヘッダー */}
       <div className="bg-amber-500 text-white px-4 py-2 flex items-center justify-between">
         <span className="text-sm font-bold">ラウンド {roomState.roundNumber}</span>
-        <span className="text-sm">
-          {isJudge ? '👑 あなたが親です' : `👑 親: ${judge?.name}`}
-        </span>
+        <div className="flex items-center gap-2">
+          {countdown !== null && (
+            <span className="text-sm font-bold bg-white/20 rounded px-2 py-0.5">{countdown}s</span>
+          )}
+          <span className="text-sm">
+            {isJudge ? '👑 あなたが親です' : `👑 親: ${judge?.name}`}
+          </span>
+        </div>
       </div>
 
       <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
