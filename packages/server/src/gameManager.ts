@@ -13,11 +13,11 @@ export class GameManager {
   private rooms = new Map<string, GameRoom>()
   private playerRoomMap = new Map<string, string>()
 
-  createRoom(ws: WebSocket, playerName: string): { roomId: string; playerId: string } {
+  createRoom(ws: WebSocket, playerName: string, winThreshold: number): { roomId: string; playerId: string } {
     let roomId = generateRoomId()
     while (this.rooms.has(roomId)) roomId = generateRoomId()
 
-    const room = new GameRoom(roomId)
+    const room = new GameRoom(roomId, winThreshold)
     this.rooms.set(roomId, room)
 
     const playerId = generatePlayerId()

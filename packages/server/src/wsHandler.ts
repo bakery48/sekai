@@ -37,7 +37,7 @@ export function handleConnection(ws: WebSocket): void {
 function handleMessage(ws: WebSocket, msg: ClientMessage): void {
   switch (msg.type) {
     case 'create_room': {
-      const { roomId, playerId } = gameManager.createRoom(ws, msg.playerName)
+      const { roomId, playerId } = gameManager.createRoom(ws, msg.playerName, msg.winThreshold)
       playerIdByWs.set(ws, playerId)
       const room = gameManager.getRoom(roomId)!
       const player = room.getPlayer(playerId)!

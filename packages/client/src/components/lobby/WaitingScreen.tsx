@@ -17,7 +17,7 @@ export default function WaitingScreen({ roomState, playerId, send, errorMessage 
       <div className="bg-white rounded-2xl px-6 py-3 mb-6 shadow">
         <p className="text-sm text-amber-600">ルームID</p>
         <p className="text-3xl font-mono font-bold text-amber-900 tracking-widest">{roomState.roomId}</p>
-        <p className="text-xs text-amber-500 mt-1">このIDを友達に教えよう</p>
+        <p className="text-xs text-amber-500 mt-1">このIDを友達に教えよう・{roomState.winThreshold}点先取</p>
       </div>
 
       {errorMessage && (

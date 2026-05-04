@@ -12,10 +12,11 @@ export default function LobbyScreen({ send, connected, errorMessage, onAdmin }: 
   const [mode, setMode] = useState<'top' | 'create' | 'join'>('top')
   const [playerName, setPlayerName] = useState('')
   const [roomId, setRoomId] = useState('')
+  const [winThreshold, setWinThreshold] = useState(3)
 
   const handleCreate = () => {
     if (!playerName.trim()) return
-    send({ type: 'create_room', playerName: playerName.trim() })
+    send({ type: 'create_room', playerName: playerName.trim(), winThreshold })
   }
 
   const handleJoin = () => {
@@ -72,6 +73,20 @@ export default function LobbyScreen({ send, connected, errorMessage, onAdmin }: 
             maxLength={12}
             className="border-2 border-amber-200 rounded-lg px-3 py-2 focus:outline-none focus:border-amber-400"
           />
+          <div>
+            <p className="text-sm text-gray-600 mb-2">先取ポイント</p>
+            <div className="flex gap-2">
+              {[3, 4, 5].map(n => (
+                <button
+                  key={n}
+                  onClick={() => setWinThreshold(n)}
+                  className={`flex-1 py-2 rounded-lg font-bold text-sm border-2 transition-colors ${winThreshold === n ? 'bg-amber-500 border-amber-500 text-white' : 'bg-white border-amber-200 text-amber-700 hover:border-amber-400'}`}
+                >
+                  {n}点
+                </button>
+              ))}
+            </div>
+          </div>
           <button
             onClick={handleCreate}
             disabled={!playerName.trim()}

@@ -22,19 +22,20 @@ export class GameRoom {
   private phase: GamePhase = 'waiting'
   private currentJudgeIndex = 0
   private currentTopicCard: TopicCard | null = null
+  private _winThreshold: number
   private submissions: InternalSubmission[] = []
   private submittedPlayerIds = new Set<string>()
   private roundNumber = 0
   private topicDeck: TopicDeck | null = null
   private wordDeck: WordDeck | null = null
 
-  constructor(roomId: string) {
+  constructor(roomId: string, winThreshold: number) {
     this.roomId = roomId
+    this._winThreshold = winThreshold
   }
 
   get winThreshold(): number {
-    const n = this.players.length
-    return WIN_THRESHOLD_MAP[n] ?? 4
+    return this._winThreshold
   }
 
   get playerCount() {
