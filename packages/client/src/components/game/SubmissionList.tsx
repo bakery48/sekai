@@ -11,8 +11,7 @@ type Props = {
   phase: string
 }
 
-export default function SubmissionList({ submissions, topic, onReveal, onSelect, isJudge, selectedIndex, lastWinnerId, phase }: Props) {
-  const parts = topic.text.split('__')
+export default function SubmissionList({ submissions, topic: _topic, onReveal, onSelect, isJudge, selectedIndex, lastWinnerId, phase }: Props) {
   const isResult = phase === 'round_result'
   const allRevealed = submissions.length > 0 && submissions.every(s => s.isRevealed)
 
@@ -60,17 +59,8 @@ export default function SubmissionList({ submissions, topic, onReveal, onSelect,
               ${canSelect ? 'hover:border-amber-300 hover:bg-amber-50 active:scale-95 cursor-pointer' : 'cursor-default'}
             `}
           >
-            <p className="text-sm text-gray-700 leading-relaxed">
-              {parts.map((part, pi) => (
-                <span key={pi}>
-                  {part}
-                  {pi < parts.length - 1 && (
-                    <span className="font-bold text-amber-700">
-                      {sub.cards[pi]?.text ?? '???'}
-                    </span>
-                  )}
-                </span>
-              ))}
+            <p className="text-lg font-bold text-amber-800 text-center py-1">
+              {sub.cards[0]?.text ?? '???'}
             </p>
             {isWinner && (
               <p className="text-xs text-amber-600 font-bold mt-1">
