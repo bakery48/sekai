@@ -33,7 +33,7 @@ export default function GameScreen({ send }: Props) {
   const me = roomState.players.find((p) => p.id === playerId)
 
   const handleSubmit = () => {
-    if (selectedCardIds.length !== currentTopic.blanks) return
+    if (selectedCardIds.length !== 1) return
     send({ type: 'submit_answer', roomId: roomState.roomId, cardIds: selectedCardIds })
     setSubmitted(true)
   }
@@ -93,13 +93,13 @@ export default function GameScreen({ send }: Props) {
                   hand={hand}
                   selectedIds={selectedCardIds}
                   onSelect={selectCard}
-                  blanks={currentTopic.blanks}
+                  blanks={1}
                   disabled={submitted}
                 />
                 {!submitted && (
                   <button
                     onClick={handleSubmit}
-                    disabled={selectedCardIds.length !== currentTopic.blanks}
+                    disabled={selectedCardIds.length !== 1}
                     className="bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-colors"
                   >
                     提出する

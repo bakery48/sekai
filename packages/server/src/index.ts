@@ -37,11 +37,10 @@ async function bootstrap() {
   })
 
   // お題カード追加
-  app.post<{ Body: { frontText: string; backText: string; blanks: number } }>('/api/cards/topic', async (req, reply) => {
-    const { frontText, backText, blanks } = req.body
-    if (!frontText?.trim() || !backText?.trim()) return reply.status(400).send({ error: 'frontText and backText required' })
-    if (blanks !== 1 && blanks !== 2) return reply.status(400).send({ error: 'blanks must be 1 or 2' })
-    const card: TopicCard = { id: `custom-topic-${Date.now()}`, frontText: frontText.trim(), backText: backText.trim(), blanks: blanks as 1 | 2 }
+  app.post<{ Body: { text: string } }>('/api/cards/topic', async (req, reply) => {
+    const { text } = req.body
+    if (!text?.trim()) return reply.status(400).send({ error: 'text required' })
+    const card: TopicCard = { id: `custom-topic-${Date.now()}`, text: text.trim() }
     addTopicCard(card)
     return { ok: true, card }
   })

@@ -12,7 +12,7 @@ type Props = {
 }
 
 export default function SubmissionList({ submissions, topic, onReveal, onSelect, isJudge, selectedIndex, lastWinnerId, phase }: Props) {
-  const parts = topic.frontText.split('__')
+  const parts = topic.text.split('__')
   const isResult = phase === 'round_result'
   const allRevealed = submissions.length > 0 && submissions.every(s => s.isRevealed)
 

@@ -89,10 +89,7 @@ function handleMessage(ws: WebSocket, msg: ClientMessage): void {
       for (const p of room.allPlayers) {
         if (p.ws.readyState === WebSocket.OPEN) {
           p.ws.send(JSON.stringify({ type: 'game_started', state, yourHand: p.hand }))
-          p.ws.send(JSON.stringify({
-            type: 'topic_revealed',
-            topicCard: { ...topic.card!, frontText: topic.text, backText: topic.text, blanks: topic.blanks },
-          }))
+          p.ws.send(JSON.stringify({ type: 'topic_revealed', topicCard: topic }))
         }
       }
       break
@@ -182,10 +179,7 @@ function handleMessage(ws: WebSocket, msg: ClientMessage): void {
       for (const p of room.allPlayers) {
         if (p.ws.readyState === WebSocket.OPEN) {
           p.ws.send(JSON.stringify({ type: 'room_state', state, yourHand: p.hand }))
-          p.ws.send(JSON.stringify({
-            type: 'topic_revealed',
-            topicCard: { ...topic.card!, frontText: topic.text, backText: topic.text, blanks: topic.blanks },
-          }))
+          p.ws.send(JSON.stringify({ type: 'topic_revealed', topicCard: topic }))
         }
       }
       break

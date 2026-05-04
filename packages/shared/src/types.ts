@@ -1,8 +1,6 @@
 export type TopicCard = {
   id: string
-  frontText: string
-  backText: string
-  blanks: 1 | 2
+  text: string
 }
 
 export type WordCard = {

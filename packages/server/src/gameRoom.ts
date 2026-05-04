@@ -22,8 +22,6 @@ export class GameRoom {
   private phase: GamePhase = 'waiting'
   private currentJudgeIndex = 0
   private currentTopicCard: TopicCard | null = null
-  private currentTopicText = ''
-  private currentBlanks: 1 | 2 = 1
   private submissions: InternalSubmission[] = []
   private submittedPlayerIds = new Set<string>()
   private roundNumber = 0
@@ -96,14 +94,12 @@ export class GameRoom {
   }
 
   private startRound(): void {
-    const drawn = this.topicDeck!.draw()
-    if (!drawn) {
+    const card = this.topicDeck!.draw()
+    if (!card) {
       this.phase = 'game_over'
       return
     }
-    this.currentTopicCard = drawn.card
-    this.currentTopicText = drawn.text
-    this.currentBlanks = drawn.blanks
+    this.currentTopicCard = card
     this.submissions = []
     this.submittedPlayerIds.clear()
     this.roundNumber++
@@ -118,8 +114,8 @@ export class GameRoom {
 
     const player = this.getPlayer(playerId)
     if (!player) return { ok: false, error: 'Player not found' }
-    if (cardIds.length !== this.currentBlanks) {
-      return { ok: false, error: `Must submit exactly ${this.currentBlanks} card(s)` }
+    if (cardIds.length !== 1) {
+      return { ok: false, error: 'Must submit exactly 1 card' }
     }
 
     const selected = cardIds.map(id => player.hand.find(c => c.id === id)).filter(Boolean) as WordCard[]
@@ -139,7 +135,7 @@ export class GameRoom {
   }
 
   private insertDummyAndShuffle(): void {
-    const dummyCards = this.wordDeck!.draw(this.currentBlanks)
+    const dummyCards = this.wordDeck!.draw(1)
     if (dummyCards.length > 0) {
       this.submissions.push({ playerId: 'dummy', cards: dummyCards, isRevealed: false })
     }
@@ -216,9 +212,7 @@ export class GameRoom {
       phase: this.phase,
       players: this.players.map(({ ws: _ws, hand: _hand, ...rest }) => rest),
       currentJudgeIndex: this.currentJudgeIndex,
-      currentTopicCard: this.currentTopicCard
-        ? { ...this.currentTopicCard, frontText: this.currentTopicText, backText: this.currentTopicText }
-        : null,
+      currentTopicCard: this.currentTopicCard,
       submissions: this.submissions.map((s, i) => ({
         submissionIndex: i,
         cards: s.cards,
@@ -246,12 +240,8 @@ export class GameRoom {
     }
   }
 
-  get currentTopic() {
-    return {
-      card: this.currentTopicCard,
-      text: this.currentTopicText,
-      blanks: this.currentBlanks,
-    }
+  get currentTopic(): TopicCard | null {
+    return this.currentTopicCard
   }
 
   get judgeId() {

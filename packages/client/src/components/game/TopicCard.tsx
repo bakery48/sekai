@@ -6,7 +6,7 @@ type Props = {
 }
 
 export default function TopicCardView({ topic, selectedCards }: Props) {
-  const parts = topic.frontText.split('__')
+  const parts = topic.text.split('__')
 
   return (
     <div className="bg-amber-100 border-2 border-amber-400 rounded-2xl p-4 shadow-md text-center">

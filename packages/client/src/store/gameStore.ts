@@ -49,7 +49,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   selectCard: (id) => {
     const { selectedCardIds, currentTopic } = get()
-    const blanks = currentTopic?.blanks ?? 1
+    const blanks = 1
     if (selectedCardIds.includes(id)) {
       set({ selectedCardIds: selectedCardIds.filter((c) => c !== id) })
     } else if (selectedCardIds.length < blanks) {

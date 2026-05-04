@@ -14,23 +14,14 @@ export function shuffle<T>(arr: T[]): T[] {
 
 export class TopicDeck {
   private cards: TopicCard[]
-  private useFront: boolean[]
 
   constructor() {
     const custom = getCustomCards()
     this.cards = shuffle([...topicCards, ...custom.topicCards])
-    this.useFront = this.cards.map(() => Math.random() < 0.5)
   }
 
-  draw(): { card: TopicCard; text: string; blanks: 1 | 2 } | null {
-    const card = this.cards.shift()
-    const front = this.useFront.shift() ?? true
-    if (!card) return null
-    return {
-      card,
-      text: front ? card.frontText : card.backText,
-      blanks: card.blanks,
-    }
+  draw(): TopicCard | null {
+    return this.cards.shift() ?? null
   }
 
   get remaining() {
