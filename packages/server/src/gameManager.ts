@@ -1,10 +1,8 @@
 import { GameRoom } from './gameRoom'
 import WebSocket from 'ws'
 
-const ROOM_ID_LENGTH = 6
-
 function generateRoomId(): string {
-  return Math.random().toString(36).substring(2, 2 + ROOM_ID_LENGTH).toUpperCase()
+  return String(Math.floor(1000 + Math.random() * 9000))
 }
 
 function generatePlayerId(): string {

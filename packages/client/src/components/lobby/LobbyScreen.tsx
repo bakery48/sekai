@@ -18,8 +18,8 @@ export default function LobbyScreen({ send, connected, errorMessage }: Props) {
   }
 
   const handleJoin = () => {
-    if (!playerName.trim() || !roomId.trim()) return
-    send({ type: 'join_room', playerName: playerName.trim(), roomId: roomId.trim().toUpperCase() })
+    if (!playerName.trim() || roomId.trim().length !== 4) return
+    send({ type: 'join_room', playerName: playerName.trim(), roomId: roomId.trim() })
   }
 
   return (
@@ -91,16 +91,17 @@ export default function LobbyScreen({ send, connected, errorMessage }: Props) {
           />
           <input
             type="text"
-            placeholder="ルームID (例: ABC123)"
+            inputMode="numeric"
+            placeholder="4桁の番号"
             value={roomId}
-            onChange={(e) => setRoomId(e.target.value.toUpperCase())}
+            onChange={(e) => setRoomId(e.target.value.replace(/\D/g, '').slice(0, 4))}
             onKeyDown={(e) => e.key === 'Enter' && handleJoin()}
-            maxLength={6}
-            className="border-2 border-amber-200 rounded-lg px-3 py-2 focus:outline-none focus:border-amber-400 tracking-widest font-mono"
+            maxLength={4}
+            className="border-2 border-amber-200 rounded-lg px-3 py-2 focus:outline-none focus:border-amber-400 tracking-widest font-mono text-center text-2xl"
           />
           <button
             onClick={handleJoin}
-            disabled={!playerName.trim() || roomId.trim().length !== 6}
+            disabled={!playerName.trim() || roomId.trim().length !== 4}
             className="bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold py-2 rounded-lg transition-colors"
           >
             参加
