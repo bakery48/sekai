@@ -22,8 +22,12 @@ export function handleConnection(ws: WebSocket): void {
 
     const room = gameManager.getRoomByPlayer(playerId)
     if (room) {
-      room.removePlayer(playerId)
+      const phaseChanged = room.removePlayer(playerId)
       room.broadcast({ type: 'player_left', playerId }, playerId)
+      if (phaseChanged) {
+        const state = room.getRoomState()
+        room.broadcast({ type: 'all_submitted', submissions: state.submissions })
+      }
     }
     gameManager.disconnectPlayer(playerId)
     gameManager.cleanupEmptyRooms()
@@ -61,6 +65,7 @@ function handleMessage(ws: WebSocket, msg: ClientMessage): void {
         type: 'room_state',
         state: room.getRoomState(),
         yourHand: player.hand,
+        playerId,
       })
       room.broadcast({ type: 'player_joined', playerId, playerName: msg.playerName }, playerId)
       break

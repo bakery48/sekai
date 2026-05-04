@@ -1,5 +1,4 @@
 import Fastify from 'fastify'
-import fastifyWebsocket from '@fastify/websocket'
 import fastifyStatic from '@fastify/static'
 import { WebSocketServer } from 'ws'
 import path from 'path'
@@ -9,17 +8,19 @@ const app = Fastify({ logger: true })
 const PORT = Number(process.env.PORT) || 3000
 
 async function bootstrap() {
-  await app.register(fastifyWebsocket)
-
   const publicDir = path.join(__dirname, '../public')
   try {
     await app.register(fastifyStatic, { root: publicDir, prefix: '/' })
   } catch {
-    // public ディレクトリがない場合（開発環境）はスキップ
+    // 開発環境では public/ がないためスキップ
   }
+
+  app.get('/health', async () => ({ status: 'ok' }))
 
   const wss = new WebSocketServer({ noServer: true })
   wss.on('connection', handleConnection)
+
+  await app.listen({ port: PORT, host: '0.0.0.0' })
 
   app.server.on('upgrade', (req, socket, head) => {
     if (req.url === '/ws') {
@@ -30,10 +31,6 @@ async function bootstrap() {
       socket.destroy()
     }
   })
-
-  app.get('/health', async () => ({ status: 'ok' }))
-
-  await app.listen({ port: PORT, host: '0.0.0.0' })
 }
 
 bootstrap().catch((err) => {

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { ClientMessage } from '@sekai/shared'
 import { useGameStore } from '../../store/gameStore'
 import TopicCardView from './TopicCard'
@@ -19,6 +19,11 @@ export default function GameScreen({ send }: Props) {
 
   const [submitted, setSubmitted] = useState(false)
   const [selectedWinnerIndex, setSelectedWinnerIndex] = useState<number | null>(null)
+
+  useEffect(() => {
+    setSubmitted(false)
+    setSelectedWinnerIndex(null)
+  }, [currentTopic?.id])
 
   if (!roomState || !currentTopic || !playerId) return null
 

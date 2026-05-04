@@ -18,7 +18,7 @@ export type ClientMessage =
 
 // ===== サーバー → クライアント =====
 export type S2C_RoomCreated     = { type: 'room_created'; roomId: string; state: RoomState; yourHand: WordCard[] }
-export type S2C_RoomState       = { type: 'room_state'; state: RoomState; yourHand: WordCard[] }
+export type S2C_RoomState       = { type: 'room_state'; state: RoomState; yourHand: WordCard[]; playerId?: string }
 export type S2C_PlayerJoined    = { type: 'player_joined'; playerName: string; playerId: string }
 export type S2C_PlayerLeft      = { type: 'player_left'; playerId: string }
 export type S2C_GameStarted     = { type: 'game_started'; state: RoomState; yourHand: WordCard[] }

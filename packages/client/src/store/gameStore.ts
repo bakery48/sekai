@@ -75,12 +75,14 @@ export const useGameStore = create<GameStore>((set, get) => ({
         break
 
       case 'room_state':
-        set({
+        set((s) => ({
           roomState: msg.state,
           hand: msg.yourHand,
+          playerId: msg.playerId ?? s.playerId,
+          roomId: msg.state.roomId,
           screen: msg.state.phase === 'waiting' ? 'waiting' : 'game',
           errorMessage: null,
-        })
+        }))
         break
 
       case 'player_joined':
@@ -91,7 +93,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
               ...s.roomState,
               players: [
                 ...s.roomState.players,
-                { id: msg.playerId, name: msg.playerName, score: 0, isConnected: true, isHost: false, hand: [] },
+                { id: msg.playerId, name: msg.playerName, score: 0, isConnected: true, isHost: false },
               ],
             },
           }

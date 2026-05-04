@@ -58,9 +58,22 @@ export class GameRoom {
     return player
   }
 
-  removePlayer(playerId: string) {
+  removePlayer(playerId: string): boolean {
     const p = this.players.find(p => p.id === playerId)
-    if (p) p.isConnected = false
+    if (!p) return false
+    p.isConnected = false
+
+    // 回答フェーズ中に切断した場合、全員提出済み判定を再チェック
+    if (this.phase === 'topic_revealed') {
+      const judge = this.players[this.currentJudgeIndex]
+      const activePlayers = this.players.filter(p => p.isConnected && p.id !== judge?.id)
+      if (activePlayers.length > 0 && this.submittedPlayerIds.size >= activePlayers.length) {
+        this.insertDummyAndShuffle()
+        this.phase = 'judging'
+        return true // 呼び出し元でall_submittedを送信させる
+      }
+    }
+    return false
   }
 
   getPlayer(playerId: string) {
