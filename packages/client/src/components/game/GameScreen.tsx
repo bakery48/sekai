@@ -14,15 +14,13 @@ export default function GameScreen({ send }: Props) {
   const {
     roomState, currentTopic, hand, playerId,
     selectedCardIds, submissions, selectCard, clearSelection,
-    lastWinnerId, errorMessage,
+    lastWinnerId, lastWinnerSubmissionIndex, errorMessage,
   } = useGameStore()
 
   const [submitted, setSubmitted] = useState(false)
-  const [selectedWinnerIndex, setSelectedWinnerIndex] = useState<number | null>(null)
 
   useEffect(() => {
     setSubmitted(false)
-    setSelectedWinnerIndex(null)
   }, [currentTopic?.id])
 
   if (!roomState || !currentTopic || !playerId) return null
@@ -46,14 +44,12 @@ export default function GameScreen({ send }: Props) {
   }
 
   const handleSelectWinner = (index: number) => {
-    setSelectedWinnerIndex(index)
     send({ type: 'select_winner', roomId: roomState.roomId, submissionIndex: index })
   }
 
   const handleNextRound = () => {
     send({ type: 'next_round', roomId: roomState.roomId })
     setSubmitted(false)
-    setSelectedWinnerIndex(null)
     clearSelection()
   }
 
@@ -127,7 +123,7 @@ export default function GameScreen({ send }: Props) {
               onReveal={handleReveal}
               onSelect={handleSelectWinner}
               isJudge={isJudge}
-              selectedIndex={selectedWinnerIndex}
+              selectedIndex={lastWinnerSubmissionIndex}
               lastWinnerId={lastWinnerId}
               lastWinnerName={lastWinnerName}
               phase={phase}

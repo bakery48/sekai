@@ -20,6 +20,7 @@ type GameStore = {
   selectedCardIds: string[]
   submissions: ClientSubmission[]
   lastWinnerId: string | 'dummy' | null
+  lastWinnerSubmissionIndex: number | null
   gameOverWinnerId: string | null
   errorMessage: string | null
 
@@ -44,6 +45,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
   selectedCardIds: [],
   submissions: [],
   lastWinnerId: null,
+  lastWinnerSubmissionIndex: null,
   gameOverWinnerId: null,
   errorMessage: null,
 
@@ -134,6 +136,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
           submissions: [],
           selectedCardIds: [],
           lastWinnerId: null,
+          lastWinnerSubmissionIndex: null,
         })
         set((s) => ({
           roomState: s.roomState
@@ -171,6 +174,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
       case 'winner_selected':
         set({
           lastWinnerId: msg.winnerId,
+          lastWinnerSubmissionIndex: msg.submissionIndex,
         })
         set((s) => ({
           roomState: s.roomState
