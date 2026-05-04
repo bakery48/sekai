@@ -1,0 +1,24 @@
+{
+  "name": "@sekai/server",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@sekai/shared": "*",
+    "fastify": "^4.27.0",
+    "@fastify/static": "^7.0.4",
+    "@fastify/websocket": "^10.0.1",
+    "ws": "^8.17.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.13.0",
+    "@types/ws": "^8.5.10",
+    "tsx": "^4.11.0",
+    "typescript": "*"
+  }
+}
