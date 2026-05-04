@@ -81,6 +81,8 @@ export const useGameStore = create<GameStore>((set, get) => ({
           playerId: msg.playerId ?? s.playerId,
           roomId: msg.state.roomId,
           screen: msg.state.phase === 'waiting' ? 'waiting' : 'game',
+          submissions: msg.state.submissions.length > 0 ? msg.state.submissions : s.submissions,
+          currentTopic: msg.state.currentTopicCard ?? s.currentTopic,
           errorMessage: null,
         }))
         break

@@ -113,6 +113,12 @@ function handleMessage(ws: WebSocket, msg: ClientMessage): void {
       if (room.isAllSubmitted()) {
         const state = room.getRoomState()
         room.broadcast({ type: 'all_submitted', submissions: state.submissions })
+        // Also send per-player room_state so clients sync phase even if all_submitted is dropped
+        for (const p of room.allPlayers) {
+          if (p.ws.readyState === WebSocket.OPEN) {
+            p.ws.send(JSON.stringify({ type: 'room_state', state, yourHand: p.hand }))
+          }
+        }
       }
       break
     }
