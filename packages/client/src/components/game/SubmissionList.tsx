@@ -8,10 +8,11 @@ type Props = {
   isJudge: boolean
   selectedIndex: number | null
   lastWinnerId: string | 'dummy' | null
+  lastWinnerName: string | null
   phase: string
 }
 
-export default function SubmissionList({ submissions, topic: _topic, onReveal, onSelect, isJudge, selectedIndex, lastWinnerId, phase }: Props) {
+export default function SubmissionList({ submissions, topic: _topic, onReveal, onSelect, isJudge, selectedIndex, lastWinnerId, lastWinnerName, phase }: Props) {
   const isResult = phase === 'round_result'
   const allRevealed = submissions.length > 0 && submissions.every(s => s.isRevealed)
 
@@ -64,7 +65,9 @@ export default function SubmissionList({ submissions, topic: _topic, onReveal, o
             </p>
             {isWinner && (
               <p className="text-xs text-amber-600 font-bold mt-1">
-                {lastWinnerId === 'dummy' ? '⚠️ ダミーカード（親マイナス1点）' : '✅ 選ばれました！'}
+                {lastWinnerId === 'dummy'
+                  ? '⚠️ ダミーカード（親マイナス1点）'
+                  : `✅ ${lastWinnerName ?? ''}さんの回答が選ばれました！`}
               </p>
             )}
           </button>

@@ -31,6 +31,9 @@ export default function GameScreen({ send }: Props) {
   const judge = roomState.players[roomState.currentJudgeIndex]
   const isJudge = judge?.id === playerId
   const me = roomState.players.find((p) => p.id === playerId)
+  const lastWinnerName = lastWinnerId && lastWinnerId !== 'dummy'
+    ? roomState.players.find(p => p.id === lastWinnerId)?.name ?? null
+    : null
 
   const handleSubmit = () => {
     if (selectedCardIds.length !== 1) return
@@ -126,6 +129,7 @@ export default function GameScreen({ send }: Props) {
               isJudge={isJudge}
               selectedIndex={selectedWinnerIndex}
               lastWinnerId={lastWinnerId}
+              lastWinnerName={lastWinnerName}
               phase={phase}
             />
 
