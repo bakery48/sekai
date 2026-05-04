@@ -14,7 +14,7 @@ export default function GameScreen({ send }: Props) {
   const {
     roomState, currentTopic, hand, playerId,
     selectedCardIds, submissions, selectCard, clearSelection,
-    lastWinnerId, lastWinnerSubmissionIndex, errorMessage, allDiscardReady,
+    lastWinnerId, lastWinnerSubmissionIndex, errorMessage,
   } = useGameStore()
 
   const [submitted, setSubmitted] = useState(false)
@@ -48,14 +48,6 @@ export default function GameScreen({ send }: Props) {
 
   const handleSelectWinner = (index: number) => {
     send({ type: 'select_winner', roomId: roomState.roomId, submissionIndex: index })
-  }
-
-  const handleNextRound = () => {
-    send({ type: 'next_round', roomId: roomState.roomId })
-    setSubmitted(false)
-    setDiscardIds([])
-    setDiscarded(false)
-    clearSelection()
   }
 
   const toggleDiscard = (id: string) => {
@@ -146,22 +138,7 @@ export default function GameScreen({ send }: Props) {
               phase={phase}
             />
 
-            {phase === 'round_result' && isJudge && (
-              <>
-                {!allDiscardReady && (
-                  <p className="text-center text-amber-600 text-sm">全員の手札交換を待っています...</p>
-                )}
-                <button
-                  onClick={handleNextRound}
-                  disabled={!allDiscardReady}
-                  className="bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-colors"
-                >
-                  次のラウンドへ
-                </button>
-              </>
-            )}
-
-            {phase === 'round_result' && !isJudge && (
+            {phase === 'round_result' && (
               <>
                 {!discarded ? (
                   <div className="bg-white rounded-xl p-4 border-2 border-amber-200 flex flex-col gap-3">
@@ -191,7 +168,7 @@ export default function GameScreen({ send }: Props) {
                     </button>
                   </div>
                 ) : (
-                  <p className="text-center text-amber-600 text-sm">親が次のラウンドを開始するのを待っています...</p>
+                  <p className="text-center text-amber-600 text-sm">全員の手札交換を待っています...</p>
                 )}
               </>
             )}

@@ -25,6 +25,7 @@ export class GameRoom {
   private lastRoundWinnerId: string | null = null
   private discardReadyPlayerIds = new Set<string>()
   private _winThreshold: number
+  private autoNextRoundTimer: ReturnType<typeof setTimeout> | null = null
   private submissions: InternalSubmission[] = []
   private submittedPlayerIds = new Set<string>()
   private roundNumber = 0
@@ -97,6 +98,7 @@ export class GameRoom {
   }
 
   private startRound(): void {
+    this.cancelAutoNextRound()
     const card = this.topicDeck!.draw()
     if (!card) {
       this.phase = 'game_over'
@@ -108,6 +110,18 @@ export class GameRoom {
     this.discardReadyPlayerIds.clear()
     this.roundNumber++
     this.phase = 'topic_revealed'
+  }
+
+  scheduleAutoNextRound(callback: () => void, delayMs = 10000): void {
+    this.cancelAutoNextRound()
+    this.autoNextRoundTimer = setTimeout(callback, delayMs)
+  }
+
+  cancelAutoNextRound(): void {
+    if (this.autoNextRoundTimer !== null) {
+      clearTimeout(this.autoNextRoundTimer)
+      this.autoNextRoundTimer = null
+    }
   }
 
   submitAnswer(playerId: string, cardIds: string[]): { ok: boolean; error?: string } {
@@ -201,11 +215,10 @@ export class GameRoom {
   }
 
   discardCards(playerId: string, cardIds: string[]): { ok: boolean; error?: string; hand: WordCard[] } {
+    if (this.phase !== 'round_result') return { ok: false, error: 'Not in round result phase', hand: [] }
     if (cardIds.length > 2) return { ok: false, error: 'Can discard at most 2 cards', hand: [] }
     const player = this.getPlayer(playerId)
     if (!player) return { ok: false, error: 'Player not found', hand: [] }
-    const judge = this.players[this.currentJudgeIndex]
-    if (player.id === judge.id) return { ok: false, error: 'Judge cannot discard', hand: [] }
     const validIds = cardIds.filter(id => player.hand.some(c => c.id === id))
     player.hand = player.hand.filter(c => !validIds.includes(c.id))
     player.hand.push(...this.wordDeck!.draw(validIds.length))
@@ -214,8 +227,7 @@ export class GameRoom {
   }
 
   isAllDiscardReady(): boolean {
-    const judge = this.players[this.currentJudgeIndex]
-    const active = this.players.filter(p => p.isConnected && p.id !== judge?.id)
+    const active = this.players.filter(p => p.isConnected)
     return active.length === 0 || active.every(p => this.discardReadyPlayerIds.has(p.id))
   }
 

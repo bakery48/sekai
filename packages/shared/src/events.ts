@@ -8,7 +8,6 @@ export type C2S_SubmitAnswer = { type: 'submit_answer'; roomId: string; cardIds:
 export type C2S_RevealCard   = { type: 'reveal_card'; roomId: string; submissionIndex: number }
 export type C2S_SelectWinner = { type: 'select_winner'; roomId: string; submissionIndex: number }
 export type C2S_DiscardCards = { type: 'discard_cards'; roomId: string; cardIds: string[] }
-export type C2S_NextRound    = { type: 'next_round'; roomId: string }
 
 export type ClientMessage =
   | C2S_CreateRoom
@@ -18,7 +17,6 @@ export type ClientMessage =
   | C2S_RevealCard
   | C2S_SelectWinner
   | C2S_DiscardCards
-  | C2S_NextRound
 
 // ===== サーバー → クライアント =====
 export type S2C_RoomCreated     = { type: 'room_created'; roomId: string; state: RoomState; yourHand: WordCard[] }
@@ -38,7 +36,6 @@ export type S2C_WinnerSelected  = {
   updatedScores: Record<string, number>
 }
 export type S2C_HandUpdated     = { type: 'hand_updated'; hand: WordCard[] }
-export type S2C_AllDiscardReady = { type: 'all_discard_ready' }
 export type S2C_GameOver        = { type: 'game_over'; winnerId: string; finalScores: Record<string, number> }
 export type S2C_Error           = { type: 'error'; message: string }
 
@@ -54,6 +51,5 @@ export type ServerMessage =
   | S2C_CardRevealed
   | S2C_WinnerSelected
   | S2C_HandUpdated
-  | S2C_AllDiscardReady
   | S2C_GameOver
   | S2C_Error

@@ -23,7 +23,6 @@ type GameStore = {
   lastWinnerSubmissionIndex: number | null
   gameOverWinnerId: string | null
   errorMessage: string | null
-  allDiscardReady: boolean
 
   // アクション
   selectCard: (id: string) => void
@@ -49,7 +48,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
   lastWinnerSubmissionIndex: null,
   gameOverWinnerId: null,
   errorMessage: null,
-  allDiscardReady: false,
 
   selectCard: (id) => {
     const { selectedCardIds, currentTopic } = get()
@@ -139,7 +137,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
           selectedCardIds: [],
           lastWinnerId: null,
           lastWinnerSubmissionIndex: null,
-          allDiscardReady: false,
         })
         set((s) => ({
           roomState: s.roomState
@@ -210,10 +207,6 @@ export const useGameStore = create<GameStore>((set, get) => ({
               }
             : s.roomState,
         }))
-        break
-
-      case 'all_discard_ready':
-        set({ allDiscardReady: true })
         break
 
       case 'hand_updated':

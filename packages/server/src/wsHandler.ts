@@ -1,6 +1,7 @@
 import WebSocket from 'ws'
 import type { ClientMessage } from '@sekai/shared'
 import { gameManager } from './gameManager'
+import type { GameRoom } from './gameRoom'
 
 const playerIdByWs = new WeakMap<WebSocket, string>()
 
@@ -159,6 +160,8 @@ function handleMessage(ws: WebSocket, msg: ClientMessage): void {
           winnerId: winner,
           finalScores: result.updatedScores,
         })
+      } else {
+        room.scheduleAutoNextRound(() => advanceToNextRound(room), 10000)
       }
       break
     }
@@ -175,30 +178,7 @@ function handleMessage(ws: WebSocket, msg: ClientMessage): void {
 
       send(ws, { type: 'hand_updated', hand: result.hand })
       if (room.isAllDiscardReady()) {
-        room.broadcast({ type: 'all_discard_ready' })
-      }
-      break
-    }
-
-    case 'next_round': {
-      const playerId = playerIdByWs.get(ws)
-      if (!playerId) return
-
-      const room = gameManager.getRoom(msg.roomId)
-      if (!room) { send(ws, { type: 'error', message: 'Room not found' }); return }
-
-      if (playerId !== room.judgeId) { send(ws, { type: 'error', message: 'Only judge can advance' }); return }
-      if (!room.isAllDiscardReady()) { send(ws, { type: 'error', message: '全員の手札交換が完了していません' }); return }
-
-      room.nextRound()
-      const state = room.getRoomState()
-      const topic = room.currentTopic
-
-      for (const p of room.allPlayers) {
-        if (p.ws.readyState === WebSocket.OPEN) {
-          p.ws.send(JSON.stringify({ type: 'room_state', state, yourHand: p.hand }))
-          p.ws.send(JSON.stringify({ type: 'topic_revealed', topicCard: topic }))
-        }
+        advanceToNextRound(room)
       }
       break
     }
@@ -212,5 +192,18 @@ function handleMessage(ws: WebSocket, msg: ClientMessage): void {
 function send(ws: WebSocket, msg: object): void {
   if (ws.readyState === WebSocket.OPEN) {
     ws.send(JSON.stringify(msg))
+  }
+}
+
+function advanceToNextRound(room: GameRoom): void {
+  room.cancelAutoNextRound()
+  room.nextRound()
+  const state = room.getRoomState()
+  const topic = room.currentTopic
+  for (const p of room.allPlayers) {
+    if (p.ws.readyState === WebSocket.OPEN) {
+      p.ws.send(JSON.stringify({ type: 'room_state', state, yourHand: p.hand }))
+      p.ws.send(JSON.stringify({ type: 'topic_revealed', topicCard: topic }))
+    }
   }
 }
