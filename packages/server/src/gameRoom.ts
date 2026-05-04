@@ -198,6 +198,18 @@ export class GameRoom {
     return null
   }
 
+  discardCards(playerId: string, cardIds: string[]): { ok: boolean; error?: string; hand: WordCard[] } {
+    if (cardIds.length > 2) return { ok: false, error: 'Can discard at most 2 cards', hand: [] }
+    const player = this.getPlayer(playerId)
+    if (!player) return { ok: false, error: 'Player not found', hand: [] }
+    const judge = this.players[this.currentJudgeIndex]
+    if (player.id === judge.id) return { ok: false, error: 'Judge cannot discard', hand: [] }
+    const validIds = cardIds.filter(id => player.hand.some(c => c.id === id))
+    player.hand = player.hand.filter(c => !validIds.includes(c.id))
+    player.hand.push(...this.wordDeck!.draw(validIds.length))
+    return { ok: true, hand: player.hand }
+  }
+
   nextRound(): void {
     const prevJudge = this.players[this.currentJudgeIndex]
     for (const p of this.players) {

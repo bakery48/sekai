@@ -18,9 +18,13 @@ export default function GameScreen({ send }: Props) {
   } = useGameStore()
 
   const [submitted, setSubmitted] = useState(false)
+  const [discardIds, setDiscardIds] = useState<string[]>([])
+  const [discarded, setDiscarded] = useState(false)
 
   useEffect(() => {
     setSubmitted(false)
+    setDiscardIds([])
+    setDiscarded(false)
   }, [currentTopic?.id])
 
   if (!roomState || !currentTopic || !playerId) return null
@@ -28,7 +32,6 @@ export default function GameScreen({ send }: Props) {
   const phase = roomState.phase
   const judge = roomState.players[roomState.currentJudgeIndex]
   const isJudge = judge?.id === playerId
-  const me = roomState.players.find((p) => p.id === playerId)
   const lastWinnerName = lastWinnerId && lastWinnerId !== 'dummy'
     ? roomState.players.find(p => p.id === lastWinnerId)?.name ?? null
     : null
@@ -50,7 +53,21 @@ export default function GameScreen({ send }: Props) {
   const handleNextRound = () => {
     send({ type: 'next_round', roomId: roomState.roomId })
     setSubmitted(false)
+    setDiscardIds([])
+    setDiscarded(false)
     clearSelection()
+  }
+
+  const toggleDiscard = (id: string) => {
+    setDiscardIds(prev =>
+      prev.includes(id) ? prev.filter(i => i !== id) : prev.length < 2 ? [...prev, id] : prev
+    )
+  }
+
+  const handleDiscard = () => {
+    send({ type: 'discard_cards', roomId: roomState.roomId, cardIds: discardIds })
+    setDiscardIds([])
+    setDiscarded(true)
   }
 
   const selectedCards = selectedCardIds.map((id) => hand.find((c) => c.id === id)!).filter(Boolean)
@@ -137,8 +154,40 @@ export default function GameScreen({ send }: Props) {
                 次のラウンドへ
               </button>
             )}
+
             {phase === 'round_result' && !isJudge && (
-              <p className="text-center text-amber-600 text-sm">親が次のラウンドを開始するのを待っています...</p>
+              <>
+                {!discarded ? (
+                  <div className="bg-white rounded-xl p-4 border-2 border-amber-200 flex flex-col gap-3">
+                    <p className="text-sm font-bold text-amber-700 text-center">
+                      捨てるカードを選んでください（0〜2枚）
+                    </p>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {hand.map(card => (
+                        <button
+                          key={card.id}
+                          onClick={() => toggleDiscard(card.id)}
+                          className={`px-3 py-2 rounded-lg border-2 text-sm font-medium transition-all ${
+                            discardIds.includes(card.id)
+                              ? 'bg-red-100 border-red-400 text-red-700 line-through'
+                              : 'bg-white border-gray-200 text-gray-700 hover:border-amber-300'
+                          }`}
+                        >
+                          {card.text}
+                        </button>
+                      ))}
+                    </div>
+                    <button
+                      onClick={handleDiscard}
+                      className="bg-amber-500 hover:bg-amber-600 text-white font-bold py-2 rounded-lg text-sm transition-colors"
+                    >
+                      {discardIds.length === 0 ? 'スキップ' : `${discardIds.length}枚捨てて引く`}
+                    </button>
+                  </div>
+                ) : (
+                  <p className="text-center text-amber-600 text-sm">親が次のラウンドを開始するのを待っています...</p>
+                )}
+              </>
             )}
           </>
         )}

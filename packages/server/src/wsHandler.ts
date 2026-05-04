@@ -163,6 +163,20 @@ function handleMessage(ws: WebSocket, msg: ClientMessage): void {
       break
     }
 
+    case 'discard_cards': {
+      const playerId = playerIdByWs.get(ws)
+      if (!playerId) return
+
+      const room = gameManager.getRoom(msg.roomId)
+      if (!room) { send(ws, { type: 'error', message: 'Room not found' }); return }
+
+      const result = room.discardCards(playerId, msg.cardIds)
+      if (!result.ok) { send(ws, { type: 'error', message: result.error! }); return }
+
+      send(ws, { type: 'hand_updated', hand: result.hand })
+      break
+    }
+
     case 'next_round': {
       const playerId = playerIdByWs.get(ws)
       if (!playerId) return

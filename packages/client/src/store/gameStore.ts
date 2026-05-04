@@ -209,6 +209,10 @@ export const useGameStore = create<GameStore>((set, get) => ({
         }))
         break
 
+      case 'hand_updated':
+        set({ hand: msg.hand })
+        break
+
       case 'error':
         set({ errorMessage: msg.message })
         break

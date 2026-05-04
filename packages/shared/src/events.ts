@@ -7,6 +7,7 @@ export type C2S_StartGame    = { type: 'start_game'; roomId: string }
 export type C2S_SubmitAnswer = { type: 'submit_answer'; roomId: string; cardIds: string[] }
 export type C2S_RevealCard   = { type: 'reveal_card'; roomId: string; submissionIndex: number }
 export type C2S_SelectWinner = { type: 'select_winner'; roomId: string; submissionIndex: number }
+export type C2S_DiscardCards = { type: 'discard_cards'; roomId: string; cardIds: string[] }
 export type C2S_NextRound    = { type: 'next_round'; roomId: string }
 
 export type ClientMessage =
@@ -16,6 +17,7 @@ export type ClientMessage =
   | C2S_SubmitAnswer
   | C2S_RevealCard
   | C2S_SelectWinner
+  | C2S_DiscardCards
   | C2S_NextRound
 
 // ===== サーバー → クライアント =====
@@ -35,6 +37,7 @@ export type S2C_WinnerSelected  = {
   isDummy: boolean
   updatedScores: Record<string, number>
 }
+export type S2C_HandUpdated     = { type: 'hand_updated'; hand: WordCard[] }
 export type S2C_GameOver        = { type: 'game_over'; winnerId: string; finalScores: Record<string, number> }
 export type S2C_Error           = { type: 'error'; message: string }
 
@@ -49,5 +52,6 @@ export type ServerMessage =
   | S2C_AllSubmitted
   | S2C_CardRevealed
   | S2C_WinnerSelected
+  | S2C_HandUpdated
   | S2C_GameOver
   | S2C_Error
