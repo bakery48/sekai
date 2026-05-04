@@ -84,9 +84,6 @@ export default function GameScreen({ send }: Props) {
       <div className="bg-amber-500 text-white px-4 py-2 flex items-center justify-between">
         <span className="text-sm font-bold">ラウンド {roomState.roundNumber}</span>
         <div className="flex items-center gap-2">
-          {countdown !== null && (
-            <span className="text-sm font-bold bg-white/20 rounded px-2 py-0.5">{countdown}s</span>
-          )}
           <span className="text-sm">
             {isJudge ? '👑 あなたが親です' : `👑 親: ${judge?.name}`}
           </span>
@@ -161,9 +158,12 @@ export default function GameScreen({ send }: Props) {
               <>
                 {!discarded ? (
                   <div className="bg-white rounded-xl p-4 border-2 border-amber-200 flex flex-col gap-3">
-                    <p className="text-sm font-bold text-amber-700 text-center">
-                      捨てるカードを選んでください（0〜2枚）
-                    </p>
+                    <div className="flex items-center justify-center gap-2">
+                      <p className="text-sm font-bold text-amber-700">捨てるカードを選んでください（0〜2枚）</p>
+                      {countdown !== null && (
+                        <span className="text-sm font-bold text-amber-500 bg-amber-50 border border-amber-300 rounded px-2 py-0.5">{countdown}s</span>
+                      )}
+                    </div>
                     <div className="flex flex-wrap gap-2 justify-center">
                       {hand.map(card => (
                         <button
