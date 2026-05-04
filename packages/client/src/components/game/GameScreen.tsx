@@ -14,7 +14,7 @@ export default function GameScreen({ send }: Props) {
   const {
     roomState, currentTopic, hand, playerId,
     selectedCardIds, submissions, selectCard, clearSelection,
-    lastWinnerId, lastWinnerSubmissionIndex, errorMessage,
+    lastWinnerId, lastWinnerSubmissionIndex, errorMessage, allDiscardReady,
   } = useGameStore()
 
   const [submitted, setSubmitted] = useState(false)
@@ -147,12 +147,18 @@ export default function GameScreen({ send }: Props) {
             />
 
             {phase === 'round_result' && isJudge && (
-              <button
-                onClick={handleNextRound}
-                className="bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 rounded-xl transition-colors"
-              >
-                次のラウンドへ
-              </button>
+              <>
+                {!allDiscardReady && (
+                  <p className="text-center text-amber-600 text-sm">全員の手札交換を待っています...</p>
+                )}
+                <button
+                  onClick={handleNextRound}
+                  disabled={!allDiscardReady}
+                  className="bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-colors"
+                >
+                  次のラウンドへ
+                </button>
+              </>
             )}
 
             {phase === 'round_result' && !isJudge && (
