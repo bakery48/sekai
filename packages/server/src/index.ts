@@ -5,7 +5,7 @@ import path from 'path'
 import { handleConnection } from './wsHandler'
 import { topicCards } from './data/topicCards'
 import { wordCards } from './data/wordCards'
-import { getCustomCards, addTopicCard, addWordCard, deleteTopicCard, deleteWordCard } from './cardStore'
+import { getCustomCards, addTopicCard, addWordCard, deleteTopicCard, deleteWordCard, setTopicEnabled, setWordEnabled } from './cardStore'
 import type { TopicCard, WordCard } from '@sekai/shared'
 
 const app = Fastify({ logger: true })
@@ -24,16 +24,30 @@ async function bootstrap() {
   // カード一覧
   app.get('/api/cards', async () => {
     const custom = getCustomCards()
+    const disabledTopics = new Set(custom.disabledTopicIds)
+    const disabledWords = new Set(custom.disabledWordIds)
     return {
       topicCards: [
-        ...topicCards.map(c => ({ ...c, isCustom: false })),
-        ...custom.topicCards.map(c => ({ ...c, isCustom: true })),
+        ...topicCards.map(c => ({ ...c, isCustom: false, enabled: !disabledTopics.has(c.id) })),
+        ...custom.topicCards.map(c => ({ ...c, isCustom: true, enabled: !disabledTopics.has(c.id) })),
       ],
       wordCards: [
-        ...wordCards.map(c => ({ ...c, isCustom: false })),
-        ...custom.wordCards.map(c => ({ ...c, isCustom: true })),
+        ...wordCards.map(c => ({ ...c, isCustom: false, enabled: !disabledWords.has(c.id) })),
+        ...custom.wordCards.map(c => ({ ...c, isCustom: true, enabled: !disabledWords.has(c.id) })),
       ],
     }
+  })
+
+  // お題カード有効/無効
+  app.patch<{ Params: { id: string }; Body: { enabled: boolean } }>('/api/cards/topic/:id/enabled', async (req) => {
+    setTopicEnabled(req.params.id, req.body.enabled)
+    return { ok: true }
+  })
+
+  // 答えカード有効/無効
+  app.patch<{ Params: { id: string }; Body: { enabled: boolean } }>('/api/cards/word/:id/enabled', async (req) => {
+    setWordEnabled(req.params.id, req.body.enabled)
+    return { ok: true }
   })
 
   // お題カード追加

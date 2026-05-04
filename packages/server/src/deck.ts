@@ -17,7 +17,8 @@ export class TopicDeck {
 
   constructor() {
     const custom = getCustomCards()
-    this.cards = shuffle([...topicCards, ...custom.topicCards])
+    const disabled = new Set(custom.disabledTopicIds)
+    this.cards = shuffle([...topicCards, ...custom.topicCards].filter(c => !disabled.has(c.id)))
   }
 
   draw(): TopicCard | null {
@@ -34,7 +35,8 @@ export class WordDeck {
 
   constructor() {
     const custom = getCustomCards()
-    this.cards = shuffle([...wordCards, ...custom.wordCards])
+    const disabled = new Set(custom.disabledWordIds)
+    this.cards = shuffle([...wordCards, ...custom.wordCards].filter(c => !disabled.has(c.id)))
   }
 
   draw(count: number): WordCard[] {

@@ -7,13 +7,21 @@ const STORE_PATH = path.join(__dirname, '../customCards.json')
 type CardStore = {
   topicCards: TopicCard[]
   wordCards: WordCard[]
+  disabledTopicIds: string[]
+  disabledWordIds: string[]
 }
 
 function load(): CardStore {
   try {
-    return JSON.parse(fs.readFileSync(STORE_PATH, 'utf-8'))
+    const data = JSON.parse(fs.readFileSync(STORE_PATH, 'utf-8'))
+    return {
+      topicCards: data.topicCards ?? [],
+      wordCards: data.wordCards ?? [],
+      disabledTopicIds: data.disabledTopicIds ?? [],
+      disabledWordIds: data.disabledWordIds ?? [],
+    }
   } catch {
-    return { topicCards: [], wordCards: [] }
+    return { topicCards: [], wordCards: [], disabledTopicIds: [], disabledWordIds: [] }
   }
 }
 
@@ -41,6 +49,7 @@ export function deleteTopicCard(id: string): boolean {
   const store = load()
   const before = store.topicCards.length
   store.topicCards = store.topicCards.filter(c => c.id !== id)
+  store.disabledTopicIds = store.disabledTopicIds.filter(i => i !== id)
   if (store.topicCards.length < before) { save(store); return true }
   return false
 }
@@ -49,6 +58,27 @@ export function deleteWordCard(id: string): boolean {
   const store = load()
   const before = store.wordCards.length
   store.wordCards = store.wordCards.filter(c => c.id !== id)
+  store.disabledWordIds = store.disabledWordIds.filter(i => i !== id)
   if (store.wordCards.length < before) { save(store); return true }
   return false
+}
+
+export function setTopicEnabled(id: string, enabled: boolean): void {
+  const store = load()
+  if (enabled) {
+    store.disabledTopicIds = store.disabledTopicIds.filter(i => i !== id)
+  } else {
+    if (!store.disabledTopicIds.includes(id)) store.disabledTopicIds.push(id)
+  }
+  save(store)
+}
+
+export function setWordEnabled(id: string, enabled: boolean): void {
+  const store = load()
+  if (enabled) {
+    store.disabledWordIds = store.disabledWordIds.filter(i => i !== id)
+  } else {
+    if (!store.disabledWordIds.includes(id)) store.disabledWordIds.push(id)
+  }
+  save(store)
 }

@@ -4,16 +4,29 @@ type TopicCard = {
   id: string
   text: string
   isCustom: boolean
+  enabled: boolean
 }
 
 type WordCard = {
   id: string
   text: string
   isCustom: boolean
+  enabled: boolean
 }
 
 type Props = {
   onBack: () => void
+}
+
+function Toggle({ enabled, onChange }: { enabled: boolean; onChange: (v: boolean) => void }) {
+  return (
+    <button
+      onClick={() => onChange(!enabled)}
+      className={`relative w-10 h-6 rounded-full transition-colors shrink-0 ${enabled ? 'bg-amber-500' : 'bg-gray-300'}`}
+    >
+      <span className={`absolute top-1 w-4 h-4 bg-white rounded-full shadow transition-transform ${enabled ? 'translate-x-5' : 'translate-x-1'}`} />
+    </button>
+  )
 }
 
 export default function AdminScreen({ onBack }: Props) {
@@ -80,6 +93,24 @@ export default function AdminScreen({ onBack }: Props) {
   const deleteWord = async (id: string) => {
     await fetch(`/api/cards/word/${id}`, { method: 'DELETE' })
     fetchCards()
+  }
+
+  const toggleTopic = async (id: string, enabled: boolean) => {
+    await fetch(`/api/cards/topic/${id}/enabled`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled }),
+    })
+    setTopicCards(prev => prev.map(c => c.id === id ? { ...c, enabled } : c))
+  }
+
+  const toggleWord = async (id: string, enabled: boolean) => {
+    await fetch(`/api/cards/word/${id}/enabled`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ enabled }),
+    })
+    setWordCards(prev => prev.map(c => c.id === id ? { ...c, enabled } : c))
   }
 
   const countBlanks = (text: string) => (text.match(/__/g) ?? []).length
@@ -177,19 +208,16 @@ export default function AdminScreen({ onBack }: Props) {
           <p className="text-center text-gray-400 text-sm py-4">読み込み中...</p>
         ) : tab === 'topic' ? (
           <div className="flex flex-col gap-2">
-            <p className="text-xs text-gray-500">{filteredTopics.length}件</p>
+            <p className="text-xs text-gray-500">
+              {filteredTopics.length}件中 {filteredTopics.filter(c => c.enabled).length}件有効
+            </p>
             {filteredTopics.map(card => (
-              <div key={card.id} className={`bg-white rounded-lg p-3 border ${card.isCustom ? 'border-amber-300' : 'border-gray-200'}`}>
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm text-gray-700">{card.text}</p>
-                    {card.isCustom && <p className="text-xs text-amber-500 mt-0.5">カスタム</p>}
-                  </div>
+              <div key={card.id} className={`bg-white rounded-lg p-3 border ${!card.enabled ? 'opacity-50' : card.isCustom ? 'border-amber-300' : 'border-gray-200'}`}>
+                <div className="flex items-center gap-2">
+                  <Toggle enabled={card.enabled} onChange={v => toggleTopic(card.id, v)} />
+                  <p className="flex-1 text-sm text-gray-700 min-w-0">{card.text}</p>
                   {card.isCustom && (
-                    <button
-                      onClick={() => deleteTopic(card.id)}
-                      className="text-red-400 hover:text-red-600 text-lg shrink-0 leading-none"
-                    >×</button>
+                    <button onClick={() => deleteTopic(card.id)} className="text-red-400 hover:text-red-600 text-lg shrink-0 leading-none">×</button>
                   )}
                 </div>
               </div>
@@ -197,15 +225,15 @@ export default function AdminScreen({ onBack }: Props) {
           </div>
         ) : (
           <div className="flex flex-col gap-2">
-            <p className="text-xs text-gray-500">{filteredWords.length}件</p>
+            <p className="text-xs text-gray-500">
+              {filteredWords.length}件中 {filteredWords.filter(c => c.enabled).length}件有効
+            </p>
             {filteredWords.map(card => (
-              <div key={card.id} className={`bg-white rounded-lg px-3 py-2 border flex items-center justify-between ${card.isCustom ? 'border-amber-300' : 'border-gray-200'}`}>
-                <span className="text-sm text-gray-800">{card.text} {card.isCustom && <span className="text-xs text-amber-500">カスタム</span>}</span>
+              <div key={card.id} className={`bg-white rounded-lg px-3 py-2 border flex items-center gap-2 ${!card.enabled ? 'opacity-50' : card.isCustom ? 'border-amber-300' : 'border-gray-200'}`}>
+                <Toggle enabled={card.enabled} onChange={v => toggleWord(card.id, v)} />
+                <span className="flex-1 text-sm text-gray-800">{card.text}</span>
                 {card.isCustom && (
-                  <button
-                    onClick={() => deleteWord(card.id)}
-                    className="text-red-400 hover:text-red-600 text-lg leading-none ml-2"
-                  >×</button>
+                  <button onClick={() => deleteWord(card.id)} className="text-red-400 hover:text-red-600 text-lg leading-none">×</button>
                 )}
               </div>
             ))}
