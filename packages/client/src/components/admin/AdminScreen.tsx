@@ -185,11 +185,11 @@ export default function AdminScreen({ onBack }: Props) {
                   if (!el) return
                   const start = el.selectionStart ?? newText.length
                   const end = el.selectionEnd ?? newText.length
-                  const next = newText.slice(0, start) + '__' + newText.slice(end)
+                  const next = newText.slice(0, start) + ' __ ' + newText.slice(end)
                   setNewText(next)
                   requestAnimationFrame(() => {
                     el.focus()
-                    el.setSelectionRange(start + 2, start + 2)
+                    el.setSelectionRange(start + 4, start + 4)
                   })
                 }}
                 className="bg-gray-100 hover:bg-gray-200 border border-amber-200 text-gray-700 font-bold px-3 py-2 rounded text-sm transition-colors"
