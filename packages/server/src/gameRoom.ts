@@ -68,6 +68,14 @@ export class GameRoom {
     return player
   }
 
+  rejoinPlayer(playerId: string, ws: WebSocket): ConnectedPlayer | null {
+    const player = this.players.find(p => p.id === playerId)
+    if (!player) return null
+    player.ws = ws
+    player.isConnected = true
+    return player
+  }
+
   removePlayer(playerId: string): boolean {
     const p = this.players.find(p => p.id === playerId)
     if (!p) return false

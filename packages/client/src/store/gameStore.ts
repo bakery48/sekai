@@ -65,9 +65,11 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   handleMessage: (msg) => {
     switch (msg.type) {
-      case 'room_created':
+      case 'room_created': {
+        const pid = extractPlayerId(msg.state, msg.yourHand)
+        if (pid) localStorage.setItem('sekai_session', JSON.stringify({ playerId: pid, roomId: msg.roomId }))
         set({
-          playerId: extractPlayerId(msg.state, msg.yourHand),
+          playerId: pid,
           roomId: msg.roomId,
           roomState: msg.state,
           hand: msg.yourHand,
@@ -75,8 +77,13 @@ export const useGameStore = create<GameStore>((set, get) => ({
           errorMessage: null,
         })
         break
+      }
 
-      case 'room_state':
+      case 'room_state': {
+        const pid = msg.playerId ?? get().playerId
+        if (pid && msg.state.roomId) {
+          localStorage.setItem('sekai_session', JSON.stringify({ playerId: pid, roomId: msg.state.roomId }))
+        }
         set((s) => ({
           roomState: msg.state,
           hand: msg.yourHand,
@@ -88,10 +95,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
           errorMessage: null,
         }))
         break
+      }
 
       case 'player_joined':
         set((s) => {
           if (!s.roomState) return {}
+          const exists = s.roomState.players.some(p => p.id === msg.playerId)
+          if (exists) {
+            return {
+              roomState: {
+                ...s.roomState,
+                players: s.roomState.players.map(p =>
+                  p.id === msg.playerId ? { ...p, isConnected: true } : p
+                ),
+              },
+            }
+          }
           return {
             roomState: {
               ...s.roomState,
@@ -191,6 +210,7 @@ export const useGameStore = create<GameStore>((set, get) => ({
         break
 
       case 'game_over':
+        localStorage.removeItem('sekai_session')
         set({
           gameOverWinnerId: msg.winnerId,
           screen: 'result',
@@ -214,6 +234,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
         break
 
       case 'error':
+        if (msg.message === 'Room not found' || msg.message === 'Player not found') {
+          localStorage.removeItem('sekai_session')
+        }
         set({ errorMessage: msg.message })
         break
     }

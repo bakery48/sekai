@@ -51,6 +51,23 @@ function handleMessage(ws: WebSocket, msg: ClientMessage): void {
       break
     }
 
+    case 'rejoin': {
+      const room = gameManager.getRoom(msg.roomId)
+      if (!room) { send(ws, { type: 'error', message: 'Room not found' }); return }
+
+      const player = room.rejoinPlayer(msg.playerId, ws)
+      if (!player) { send(ws, { type: 'error', message: 'Player not found' }); return }
+
+      playerIdByWs.set(ws, msg.playerId)
+      const state = room.getRoomState()
+      send(ws, { type: 'room_state', state, yourHand: player.hand, playerId: msg.playerId })
+      if (state.phase !== 'waiting' && room.currentTopic) {
+        send(ws, { type: 'topic_revealed', topicCard: room.currentTopic })
+      }
+      room.broadcast({ type: 'player_joined', playerId: msg.playerId, playerName: player.name }, msg.playerId)
+      break
+    }
+
     case 'join_room': {
       const result = gameManager.joinRoom(ws, msg.playerName, msg.roomId)
       if (!result.ok) {

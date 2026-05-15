@@ -15,7 +15,18 @@ export function useWebSocket() {
     const socket = new WebSocket(WS_URL)
     ws.current = socket
 
-    socket.onopen = () => setConnected(true)
+    socket.onopen = () => {
+      setConnected(true)
+      const saved = localStorage.getItem('sekai_session')
+      if (saved) {
+        try {
+          const { playerId, roomId } = JSON.parse(saved)
+          socket.send(JSON.stringify({ type: 'rejoin', roomId, playerId }))
+        } catch {
+          localStorage.removeItem('sekai_session')
+        }
+      }
+    }
     socket.onclose = () => setConnected(false)
     socket.onerror = () => setConnected(false)
     socket.onmessage = (e) => {

@@ -3,6 +3,7 @@ import type { TopicCard, WordCard, RoomState, ClientSubmission } from './types'
 // ===== クライアント → サーバー =====
 export type C2S_CreateRoom   = { type: 'create_room'; playerName: string; winThreshold: number; mulliganSeconds: number }
 export type C2S_JoinRoom     = { type: 'join_room'; playerName: string; roomId: string }
+export type C2S_Rejoin       = { type: 'rejoin'; roomId: string; playerId: string }
 export type C2S_StartGame    = { type: 'start_game'; roomId: string }
 export type C2S_SubmitAnswer = { type: 'submit_answer'; roomId: string; cardIds: string[]; customText?: string }
 export type C2S_RevealCard   = { type: 'reveal_card'; roomId: string; submissionIndex: number }
@@ -12,6 +13,7 @@ export type C2S_DiscardCards = { type: 'discard_cards'; roomId: string; cardIds:
 export type ClientMessage =
   | C2S_CreateRoom
   | C2S_JoinRoom
+  | C2S_Rejoin
   | C2S_StartGame
   | C2S_SubmitAnswer
   | C2S_RevealCard
