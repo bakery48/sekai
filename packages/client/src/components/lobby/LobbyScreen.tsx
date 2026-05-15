@@ -13,10 +13,11 @@ export default function LobbyScreen({ send, connected, errorMessage, onAdmin }: 
   const [playerName, setPlayerName] = useState('')
   const [roomId, setRoomId] = useState('')
   const [winThreshold, setWinThreshold] = useState(3)
+  const [mulliganSeconds, setMulliganSeconds] = useState(30)
 
   const handleCreate = () => {
     if (!playerName.trim()) return
-    send({ type: 'create_room', playerName: playerName.trim(), winThreshold })
+    send({ type: 'create_room', playerName: playerName.trim(), winThreshold, mulliganSeconds })
   }
 
   const handleJoin = () => {
@@ -85,6 +86,23 @@ export default function LobbyScreen({ send, connected, errorMessage, onAdmin }: 
                   {n}点
                 </button>
               ))}
+            </div>
+          </div>
+          <div>
+            <p className="text-sm text-gray-600 mb-2">マリガン時間</p>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                min={10}
+                max={99}
+                value={mulliganSeconds}
+                onChange={(e) => {
+                  const v = Math.min(99, Math.max(10, Number(e.target.value)))
+                  setMulliganSeconds(v)
+                }}
+                className="w-20 border-2 border-amber-200 rounded-lg px-3 py-2 text-center font-bold focus:outline-none focus:border-amber-400"
+              />
+              <span className="text-sm text-gray-600">秒</span>
             </div>
           </div>
           <button

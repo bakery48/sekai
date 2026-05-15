@@ -35,7 +35,7 @@ export default function GameScreen({ send }: Props) {
   useEffect(() => {
     if (!roomState) return
     if (roomState.phase === 'round_result') {
-      setCountdown(10)
+      setCountdown(roomState.mulliganSeconds)
       const interval = setInterval(() => {
         setCountdown(prev => (prev !== null && prev > 1 ? prev - 1 : null))
       }, 1000)

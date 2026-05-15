@@ -1,7 +1,7 @@
 import type { TopicCard, WordCard, RoomState, ClientSubmission } from './types'
 
 // ===== クライアント → サーバー =====
-export type C2S_CreateRoom   = { type: 'create_room'; playerName: string; winThreshold: number }
+export type C2S_CreateRoom   = { type: 'create_room'; playerName: string; winThreshold: number; mulliganSeconds: number }
 export type C2S_JoinRoom     = { type: 'join_room'; playerName: string; roomId: string }
 export type C2S_StartGame    = { type: 'start_game'; roomId: string }
 export type C2S_SubmitAnswer = { type: 'submit_answer'; roomId: string; cardIds: string[]; customText?: string }

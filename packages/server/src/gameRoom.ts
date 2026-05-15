@@ -27,6 +27,7 @@ export class GameRoom {
   private lastRoundWinnerId: string | null = null
   private discardReadyPlayerIds = new Set<string>()
   private _winThreshold: number
+  private _mulliganSeconds: number
   private autoNextRoundTimer: ReturnType<typeof setTimeout> | null = null
   private submissions: InternalSubmission[] = []
   private submittedPlayerIds = new Set<string>()
@@ -34,13 +35,18 @@ export class GameRoom {
   private topicDeck: TopicDeck | null = null
   private wordDeck: WordDeck | null = null
 
-  constructor(roomId: string, winThreshold: number) {
+  constructor(roomId: string, winThreshold: number, mulliganSeconds: number) {
     this.roomId = roomId
     this._winThreshold = winThreshold
+    this._mulliganSeconds = mulliganSeconds
   }
 
   get winThreshold(): number {
     return this._winThreshold
+  }
+
+  get mulliganSeconds(): number {
+    return this._mulliganSeconds
   }
 
   get playerCount() {
@@ -279,6 +285,7 @@ export class GameRoom {
       })),
       roundNumber: this.roundNumber,
       winThreshold: this.winThreshold,
+      mulliganSeconds: this.mulliganSeconds,
     }
   }
 

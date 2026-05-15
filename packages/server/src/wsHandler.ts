@@ -38,7 +38,7 @@ export function handleConnection(ws: WebSocket): void {
 function handleMessage(ws: WebSocket, msg: ClientMessage): void {
   switch (msg.type) {
     case 'create_room': {
-      const { roomId, playerId } = gameManager.createRoom(ws, msg.playerName, msg.winThreshold)
+      const { roomId, playerId } = gameManager.createRoom(ws, msg.playerName, msg.winThreshold, msg.mulliganSeconds)
       playerIdByWs.set(ws, playerId)
       const room = gameManager.getRoom(roomId)!
       const player = room.getPlayer(playerId)!
@@ -162,7 +162,7 @@ function handleMessage(ws: WebSocket, msg: ClientMessage): void {
           finalScores: result.updatedScores,
         })
       } else {
-        room.scheduleAutoNextRound(() => advanceToNextRound(room), 10000)
+        room.scheduleAutoNextRound(() => advanceToNextRound(room), room.mulliganSeconds * 1000)
       }
       break
     }

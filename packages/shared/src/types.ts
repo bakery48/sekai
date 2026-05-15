@@ -45,6 +45,7 @@ export type RoomState = {
   submissions: ClientSubmission[]
   roundNumber: number
   winThreshold: number
+  mulliganSeconds: number
 }
 
 export const WIN_THRESHOLD: Record<number, number> = {
