@@ -103,9 +103,10 @@ function handleMessage(ws: WebSocket, msg: ClientMessage): void {
       const room = gameManager.getRoom(msg.roomId)
       if (!room) { send(ws, { type: 'error', message: 'Room not found' }); return }
 
-      const result = room.submitAnswer(playerId, msg.cardIds)
+      const result = room.submitAnswer(playerId, msg.cardIds, msg.customText)
       if (!result.ok) { send(ws, { type: 'error', message: result.error! }); return }
 
+      if (result.newHand) send(ws, { type: 'hand_updated', hand: result.newHand })
       room.broadcast({ type: 'player_submitted', playerId })
 
       if (room.isAllSubmitted()) {

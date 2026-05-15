@@ -21,11 +21,15 @@ export default function GameScreen({ send }: Props) {
   const [discardIds, setDiscardIds] = useState<string[]>([])
   const [discarded, setDiscarded] = useState(false)
   const [countdown, setCountdown] = useState<number | null>(null)
+  const [customMode, setCustomMode] = useState(false)
+  const [customText, setCustomText] = useState('')
 
   useEffect(() => {
     setSubmitted(false)
     setDiscardIds([])
     setDiscarded(false)
+    setCustomMode(false)
+    setCustomText('')
   }, [currentTopic?.id])
 
   useEffect(() => {
@@ -53,6 +57,12 @@ export default function GameScreen({ send }: Props) {
   const handleSubmit = () => {
     if (selectedCardIds.length !== 1) return
     send({ type: 'submit_answer', roomId: roomState.roomId, cardIds: selectedCardIds })
+    setSubmitted(true)
+  }
+
+  const handleCustomSubmit = () => {
+    if (!customText.trim()) return
+    send({ type: 'submit_answer', roomId: roomState.roomId, cardIds: [], customText: customText.trim() })
     setSubmitted(true)
   }
 
@@ -111,28 +121,64 @@ export default function GameScreen({ send }: Props) {
               <div className="text-center text-amber-700 font-bold py-4">
                 みんなの回答を待っています...
               </div>
+            ) : submitted ? (
+              <p className="text-center text-amber-600 font-bold py-2">
+                提出済み！親の判定を待っています...
+              </p>
             ) : (
               <>
-                <HandCards
-                  hand={hand}
-                  selectedIds={selectedCardIds}
-                  onSelect={selectCard}
-                  blanks={1}
-                  disabled={submitted}
-                />
-                {!submitted && (
-                  <button
-                    onClick={handleSubmit}
-                    disabled={selectedCardIds.length !== 1}
-                    className="bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-colors"
-                  >
-                    提出する
-                  </button>
-                )}
-                {submitted && (
-                  <p className="text-center text-amber-600 font-bold py-2">
-                    提出済み！親の判定を待っています...
-                  </p>
+                {!customMode ? (
+                  <>
+                    <HandCards
+                      hand={hand}
+                      selectedIds={selectedCardIds}
+                      onSelect={selectCard}
+                      blanks={1}
+                      disabled={false}
+                    />
+                    <button
+                      onClick={handleSubmit}
+                      disabled={selectedCardIds.length !== 1}
+                      className="bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold py-3 rounded-xl transition-colors"
+                    >
+                      提出する
+                    </button>
+                    <button
+                      onClick={() => { setCustomMode(true); clearSelection() }}
+                      className="text-amber-600 text-sm underline text-center"
+                    >
+                      オリジナルカードを作って提出する
+                    </button>
+                  </>
+                ) : (
+                  <div className="bg-white rounded-xl p-4 border-2 border-amber-300 flex flex-col gap-3">
+                    <p className="text-sm font-bold text-amber-700">オリジナル回答カードを作成</p>
+                    <p className="text-xs text-gray-500">手札からランダムに1枚が捨てられます</p>
+                    <input
+                      type="text"
+                      placeholder="回答を入力..."
+                      value={customText}
+                      onChange={(e) => setCustomText(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && handleCustomSubmit()}
+                      className="border border-amber-200 rounded px-3 py-2 text-sm focus:outline-none focus:border-amber-400"
+                      autoFocus
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setCustomMode(false)}
+                        className="flex-1 border border-amber-300 text-amber-600 font-bold py-2 rounded-lg text-sm transition-colors"
+                      >
+                        戻る
+                      </button>
+                      <button
+                        onClick={handleCustomSubmit}
+                        disabled={!customText.trim()}
+                        className="flex-1 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-bold py-2 rounded-lg text-sm transition-colors"
+                      >
+                        作成して提出
+                      </button>
+                    </div>
+                  </div>
                 )}
               </>
             )}

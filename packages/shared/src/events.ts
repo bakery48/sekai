@@ -4,7 +4,7 @@ import type { TopicCard, WordCard, RoomState, ClientSubmission } from './types'
 export type C2S_CreateRoom   = { type: 'create_room'; playerName: string; winThreshold: number }
 export type C2S_JoinRoom     = { type: 'join_room'; playerName: string; roomId: string }
 export type C2S_StartGame    = { type: 'start_game'; roomId: string }
-export type C2S_SubmitAnswer = { type: 'submit_answer'; roomId: string; cardIds: string[] }
+export type C2S_SubmitAnswer = { type: 'submit_answer'; roomId: string; cardIds: string[]; customText?: string }
 export type C2S_RevealCard   = { type: 'reveal_card'; roomId: string; submissionIndex: number }
 export type C2S_SelectWinner = { type: 'select_winner'; roomId: string; submissionIndex: number }
 export type C2S_DiscardCards = { type: 'discard_cards'; roomId: string; cardIds: string[] }

@@ -4,6 +4,8 @@ import type {
 } from '@sekai/shared'
 import { WIN_THRESHOLD as WIN_THRESHOLD_MAP } from '@sekai/shared'
 import { TopicDeck, WordDeck, shuffle } from './deck'
+import { addWordCard } from './cardStore'
+import { randomUUID } from 'crypto'
 import WebSocket from 'ws'
 
 const HAND_SIZE = 7
@@ -124,7 +126,7 @@ export class GameRoom {
     }
   }
 
-  submitAnswer(playerId: string, cardIds: string[]): { ok: boolean; error?: string } {
+  submitAnswer(playerId: string, cardIds: string[], customText?: string): { ok: boolean; error?: string; newHand?: WordCard[] } {
     if (this.phase !== 'topic_revealed') return { ok: false, error: 'Not in answering phase' }
     const judge = this.players[this.currentJudgeIndex]
     if (playerId === judge.id) return { ok: false, error: 'Judge cannot submit' }
@@ -132,15 +134,28 @@ export class GameRoom {
 
     const player = this.getPlayer(playerId)
     if (!player) return { ok: false, error: 'Player not found' }
-    if (cardIds.length !== 1) {
-      return { ok: false, error: 'Must submit exactly 1 card' }
+
+    let submittedCards: WordCard[]
+
+    if (customText) {
+      if (!customText.trim()) return { ok: false, error: 'Custom text cannot be empty' }
+      const customCard: WordCard = { id: `custom-${randomUUID()}`, text: customText.trim() }
+      addWordCard(customCard)
+      // 手札からランダムに1枚捨てる
+      if (player.hand.length > 0) {
+        const randomIndex = Math.floor(Math.random() * player.hand.length)
+        player.hand.splice(randomIndex, 1)
+      }
+      submittedCards = [customCard]
+    } else {
+      if (cardIds.length !== 1) return { ok: false, error: 'Must submit exactly 1 card' }
+      const selected = cardIds.map(id => player.hand.find(c => c.id === id)).filter(Boolean) as WordCard[]
+      if (selected.length !== cardIds.length) return { ok: false, error: 'Invalid card IDs' }
+      player.hand = player.hand.filter(c => !cardIds.includes(c.id))
+      submittedCards = selected
     }
 
-    const selected = cardIds.map(id => player.hand.find(c => c.id === id)).filter(Boolean) as WordCard[]
-    if (selected.length !== cardIds.length) return { ok: false, error: 'Invalid card IDs' }
-
-    player.hand = player.hand.filter(c => !cardIds.includes(c.id))
-    this.submissions.push({ playerId, cards: selected, isRevealed: false })
+    this.submissions.push({ playerId, cards: submittedCards, isRevealed: false })
     this.submittedPlayerIds.add(playerId)
 
     const activePlayers = this.players.filter(p => p.isConnected && p.id !== judge.id)
@@ -149,7 +164,7 @@ export class GameRoom {
       this.phase = 'judging'
     }
 
-    return { ok: true }
+    return { ok: true, newHand: player.hand }
   }
 
   private insertDummyAndShuffle(): void {
