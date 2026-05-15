@@ -58,11 +58,12 @@ export default function AdminScreen({ onBack }: Props) {
     setLoading(true)
     try {
       const res = await fetch('/api/cards')
+      if (!res.ok) throw new Error(`HTTP ${res.status}`)
       const data = await res.json()
       setTopicCards(data.topicCards)
       setWordCards(data.wordCards)
-    } catch {
-      setError('カードの読み込みに失敗しました')
+    } catch (e) {
+      setError(`カードの読み込みに失敗しました (${e instanceof Error ? e.message : e})`)
     } finally {
       setLoading(false)
     }
