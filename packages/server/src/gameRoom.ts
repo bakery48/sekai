@@ -141,6 +141,7 @@ export class GameRoom {
       if (!customText.trim()) return { ok: false, error: 'Custom text cannot be empty' }
       const customCard: WordCard = { id: `custom-${randomUUID()}`, text: customText.trim() }
       addWordCard(customCard)
+      this.wordDeck!.addCard(customCard)
       // 手札からランダムに1枚捨てる
       if (player.hand.length > 0) {
         const randomIndex = Math.floor(Math.random() * player.hand.length)

@@ -47,6 +47,11 @@ export class WordDeck {
     return this.cards.shift() ?? null
   }
 
+  addCard(card: WordCard): void {
+    const insertAt = Math.floor(Math.random() * (this.cards.length + 1))
+    this.cards.splice(insertAt, 0, card)
+  }
+
   get remaining() {
     return this.cards.length
   }
