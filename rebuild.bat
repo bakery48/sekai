@@ -1,4 +1,5 @@
 @echo off
+chcp 65001 > nul
 echo [1/3] shared をビルド中...
 cd packages\shared
 node ..\..\node_modules\typescript\bin\tsc
